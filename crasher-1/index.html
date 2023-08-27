@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+
+  <script>
+    // The only reason this HTML exists is to send the web event to change the dummy_variable
+    EventBridge.emitWebEvent(JSON.stringify({ action: "change_to_true" }));
+  </script>
+</html>
