@@ -1,9 +1,12 @@
-[
-  {
-    "name": "Crasher",
-    "directory": "crasher-1",
-    "script": "crasher1.js",
-    "icon": "icon.png",
-    "description": "Crashes your game! :D"
-  }
-]
+{
+	"title": "Armored Dragon Test Repo",
+	"application_list": [
+		{
+			"name": "Crasher",
+			"directory": "crasher-1",
+			"script": "crasher1.js",
+			"icon": "icon.png",
+			"description": "Crashes your game! :D"
+		}
+	]
+}
