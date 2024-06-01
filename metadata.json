@@ -7,6 +7,20 @@
 			"script": "crasher1.js",
 			"icon": "icon.png",
 			"description": "Crashes your game! :D"
+		},
+		{
+			"name": "Armored Chat",
+			"directory": "armored-chat",
+			"script": "armored_chat.js",
+			"icon": "img/icon_white.png",
+			"description": "Beta version of Armored Chat."
+		},
+		{
+			"name": "ArMored",
+			"directory": "more",
+			"script": "more.js",
+			"icon": "icon.png",
+			"description": "Experimental new app discovery application."
 		}
 	]
 }
