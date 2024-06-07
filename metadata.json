@@ -19,7 +19,7 @@
 			"name": "ArMored",
 			"directory": "more",
 			"script": "more.js",
-			"icon": "icon.png",
+			"icon": "img/icon_white.png",
 			"description": "Experimental new app discovery application."
 		}
 	]
