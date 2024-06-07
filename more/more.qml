@@ -14,10 +14,6 @@ Rectangle {
     property string last_message_user: ""
     property date last_message_time: new Date()
 
-    // When the window is created on the script side, the window starts open.
-    // Once the QML window is created wait, then send the initialized signal.
-    // This signal is mostly used to close the "Desktop overlay window" script side
-    // https://github.com/overte-org/overte/issues/824
     Timer {
         interval: 10
         running: true
@@ -40,43 +36,72 @@ Rectangle {
             visible: ["app_list", "repos"].includes(current_page) ? true : false
 
             Item {
-                height: parent.height
-                width: parent.width
-                anchors.fill: parent
+                anchors.centerIn: parent
+                width: parent.width - 10
+                height: parent.height - 25
 
-                Item {
-                 anchors.centerIn: parent
-                 width: parent.width - 10
-                 height: parent.height - 25
+                Rectangle {
+                    color: "white"
+                    width: parent.width - 100
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: parent.height
+                    radius: 5
 
-                    Rectangle {
-                        color: "white"
-                        width: parent.width - 100
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: parent.height
-                        radius: 5
+                    TextInput {
+                        width: parent.width - 10
+                        color: "black"
+                        font.pointSize: 12
+                        anchors.centerIn: parent
+                        id: search_query
+                        onAccepted: {
+                            if (current_page == "app_list"){
+                                searchList(search_query.text, installed_apps);
+                                return;
+                            }
+                            if (current_page == "repos"){
+                                searchList(search_query.text, repo_list);
+                                return;
+                            }
+                        }
                     }
 
-                    Rectangle {
-                        color: "#296992"
-                        width: parent.width - parent.children[0].width - 10
+                    Text {
+                        color: "Gray"
+                        font.pointSize: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        height: parent.height
-                        radius: 5
-                        anchors.right: parent.right
+                        x: 5
+                        text: "Search..."
+                        font.italic: true
+                        visible: parent.children[0].text == ""
+                    }
+                }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (root.current_page == "app_list") {
-                                    root.current_page = "repos" 
-                                    return;
-                                }
-                                
-                                if (root.current_page == "repos") {
-                                    root.current_page = "app_list"
-                                    return;
-                                }
+                Rectangle {
+                    color: "#296992"
+                    width: parent.width - parent.children[0].width - 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: parent.height
+                    radius: 5
+                    anchors.right: parent.right
+
+                    Image {
+                        source: "menu.svg"
+                        anchors.centerIn: parent
+                        sourceSize.width: 20
+                        sourceSize.height: 20
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if (root.current_page == "app_list") {
+                                root.current_page = "repos" 
+                                return;
+                            }
+                            
+                            if (root.current_page == "repos") {
+                                root.current_page = "app_list"
+                                return;
                             }
                         }
                     }
@@ -103,6 +128,7 @@ Rectangle {
                 spacing: 5
                 id: installed_apps_list
                 model: installed_apps
+
                 delegate: Loader {
                     property int delegateIndex: index
                     property string delegateTitle: model.title
@@ -111,45 +137,15 @@ Rectangle {
                     property string delegateIcon: model.icon
                     property string delegateURL: model.url
                     property bool delegateInstalled: model.installed
+                    property bool delegateIsVisible: model.is_visible
                     width: installed_apps_list.width
 
                     sourceComponent: app_listing
                 }
             }
+            
             ListModel {
                 id: installed_apps
-                // ListElement {
-                //     title: "Enhanced More"
-                //     repository: "Overte"
-                //     description: "User 1"
-                //     icon: "https://github.com/overte-org/overte/blob/master/scripts/communityScripts/chat/chat.png?raw=true"
-                //     url: "https://raw.githubusercontent.com/overte-org/community-apps/master/applications/flyCam/flyCamera.js"
-                //     installed: false
-                // }
-                // ListElement {
-                //     title: "Armored Chat"
-                //     repository: "Armored Armory"
-                //     description: "User 2"
-                //     icon: "https://github.com/overte-org/overte/blob/master/scripts/communityScripts/chat/chat.png?raw=true"
-                //     url: "https://raw.githubusercontent.com/overte-org/community-apps/master/applications/flyCam/flyCamera.js"
-                //     installed: false
-                // }
-                // ListElement {
-                //     title: "Super Awesome Debugger 9000"
-                //     repository: "SexySnake"
-                //     description: "User 2"
-                //     icon: "https://github.com/overte-org/overte/blob/master/scripts/communityScripts/chat/chat.png?raw=true"
-                //     url: "https://raw.githubusercontent.com/overte-org/community-apps/master/applications/flyCam/flyCamera.js"
-                //     installed: false
-                // }
-                // ListElement {
-                //     title: "In accordance to all known laws of aviation, this title will be the longest title available"
-                //     repository: "SexySnake"
-                //     description: "User 2"
-                //     icon: "https://github.com/overte-org/overte/blob/master/scripts/communityScripts/chat/chat.png?raw=true"
-                //     url: "https://raw.githubusercontent.com/overte-org/community-apps/master/applications/flyCam/flyCamera.js"
-                //     installed: false
-                // }
             }
         }
 
@@ -247,6 +243,7 @@ Rectangle {
                     property string delegateTitle: model.title
                     property string delegateURL: model.url
                     property bool selected: false
+                    property bool delegateIsVisible: model.is_visible
 
                     width: registered_repo_list.width
 
@@ -255,18 +252,6 @@ Rectangle {
             }
             ListModel {
                 id: repo_list
-                // ListElement {
-                //     title: "Overte Offical"
-                //     url: "https://overte.org/repos/community/manifest.json"
-                // }
-                // ListElement {
-                //     title: "Armored Dragon's Armory"
-                //     url: "https://overte.armoreddragon.com/apps/manifest.json"
-                // }
-                // ListElement {
-                //     title: "SexySnake"
-                //     url: "https://github.com/sexysnake/overte-apps/manifest.json"
-                // }
             }
         }
     }
@@ -283,11 +268,14 @@ Rectangle {
             property string icon: delegateIcon
             property string url: delegateURL
             property bool installed: delegateInstalled
+            property bool is_visible: delegateIsVisible
 
             property bool selected: (installed_apps_list.index_selected == index)
 
-            height: selected ? 100 : 60
+            visible: is_visible
+            height: is_visible ? selected ? 100 : 60 : 0
           	width: parent.width
+
             color: index % 2 === 0 ? "transparent" : Qt.rgba(0.15,0.15,0.15,1)
 
             Behavior on height {
@@ -444,12 +432,14 @@ Rectangle {
         Rectangle {
             property int index: delegateIndex
             property string title: delegateTitle
-            property string url: delegateURL
+            property string url: delegateURL            
+            property bool is_visible: delegateIsVisible
 
             property bool selected: (registered_repo_list.index_selected == index)
 
             height: selected ? 70 : 40
           	width: parent.width
+            visible: is_visible
             color: index % 2 === 0 ? "transparent" : Qt.rgba(0.15,0.15,0.15,1)
             clip: true
 
@@ -575,17 +565,34 @@ Rectangle {
         toScript({type: "remove_application", url: url});
     }
 
+    // Searching
+    function searchList(text, element){
+
+        for (var i = 0; i < element.count; i++) {
+            var app = element.get(i);
+
+            var is_found = app.title.toLowerCase().includes(text.toLowerCase()) || app.description.toLowerCase().includes(text.toLowerCase()) || app.url.toLowerCase().includes(text.toLowerCase())
+
+            if (!app.title.toLowerCase().includes(text.toLowerCase())){
+                app.is_visible = false;
+            }
+            else {
+                app.is_visible = true
+            }
+
+        }
+    }
+
     // Messages from script
     function fromScript(message) {
         switch (message.type){
             case "installed_apps":
                 clearApplicationList();
-                message.app_list.forEach((app) => installed_apps.append({title: app.title, repository: app.repository, description: app.description, icon: app.icon, url: app.url, installed: app.installed || false }))
+                message.app_list.forEach((app) => installed_apps.append({title: app.title, repository: app.repository, description: app.description, icon: app.icon, url: app.url, installed: app.installed || false, is_visible: true }))
                 break;
             case "installed_repositories":
                 clearRepositoryList();
-                message.repository_list.forEach((repo) => repo_list.append({ title: repo.title, url: repo.url }))
-                
+                message.repository_list.forEach((repo) => repo_list.append({ title: repo.title, url: repo.url, is_visible: true }))
                 break;
             case "clear_messages":
                 break;
