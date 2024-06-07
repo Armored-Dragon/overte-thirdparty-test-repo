@@ -254,6 +254,108 @@ Rectangle {
                 id: repo_list
             }
         }
+
+
+        // Go back button from app details
+        Rectangle {
+            id: go_back_button
+            width: parent.width
+            height: 60
+            color: Qt.rgba(0,0,0,1)
+            visible: current_page == "details"
+
+            Rectangle {
+                width: parent.width - 20
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 35
+                radius: 5
+                color: "#771d1d"
+
+                Text {
+                    color: "white"
+                    font.pointSize: 12
+                    anchors.centerIn: parent
+                    text: "Back"
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+
+                    onClicked: {
+                        current_page = "app_list"
+                    }
+                }
+            }
+        }
+
+        // App Details
+        Item {
+            width: parent.width - 20
+            height: parent.height - 40
+            anchors.top: navigation_bar.bottom
+            visible: current_page == "details"
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Item {
+                width: parent.width
+                height: 100
+                y: 10
+
+
+                Rectangle{
+                    width: 100
+                    height: 100
+                    radius: 5
+
+                    Rectangle {
+                        color: "black"
+                        width: 96
+                        height: 96
+                        radius: 5
+                        anchors.centerIn: parent
+
+                        Image {
+                            id: details_icon
+                            width: 90
+                            height: 90
+                            anchors.centerIn: parent
+                        }
+                    }
+                }
+
+                Text {
+                    x: parent.children[0].width + 10
+                    text: ""
+                    color:"white";
+                    font.pointSize: 14
+                    id: details_title
+                }
+
+                Text {
+                    x: parent.children[0].width + 10
+                    y: parent.children[1].height + 5
+                    text: ""
+                    color: "gray";
+                    font.pointSize: 10
+                    id: details_repo_url
+                }
+            }
+
+            Item {
+                width: parent.width
+                anchors.top: parent.children[0].bottom
+
+                Text{
+                    text: ""
+                    color: "white";
+                    font.pointSize: 12
+                    y: 20
+                    id: details_description
+                }
+            }
+
+        }
     }
 
     // Templates
@@ -400,15 +502,23 @@ Rectangle {
                         color: "#505186"
                         x: parent.children[0].width + 5
 
-                        Text{
+                        Text {
                             text: "Details"
                             anchors.centerIn: parent
                             color:"white"
                         }
+
+                        MouseArea {
+                            anchors.fill: parent
+
+                            onClicked: {
+                                openAppDetails(title, url, repo, description, icon);
+                            }
+                        }
                     }
                 }
 
-                MouseArea{
+                MouseArea {
                     width: parent.width
                     height: 60
 
@@ -581,6 +691,15 @@ Rectangle {
             }
 
         }
+    }
+
+    // App Details page
+    function openAppDetails(title, url, repo, description, icon){
+        current_page = "details";
+        details_title.text = title;
+        details_repo_url.text = repo;
+        details_description.text = description;
+        details_icon.source = icon;
     }
 
     // Messages from script
