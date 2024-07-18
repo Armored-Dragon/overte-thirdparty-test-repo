@@ -1,5 +1,6 @@
 {
 	"title": "Armored Dragon Test Repo",
+	"base_url": "https://raw.githubusercontent.com/Armored-Dragon/overte-thirdparty-test-repo/master",
 	"application_list": [
 		{
 			"name": "Crasher",
