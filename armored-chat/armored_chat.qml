@@ -33,9 +33,6 @@ Rectangle {
            scrollToBottom();
         }
     }
-    // Component.onCompleted: {
-    //     toScript({type: "initialized"});
-    // }
 
     // User view
     Item {
@@ -214,6 +211,11 @@ Rectangle {
                                 toScript({type: "send_message", message: text, channel: pageVal});
                                 text = ""
                             }
+                        }
+                        onFocusChanged: {
+                            if (!HMD.active) return;
+                            if (focus) return ApplicationInterface.showVRKeyboardForHudUI(true);
+                            ApplicationInterface.showVRKeyboardForHudUI(false);
                         }
                     }
                     Button {
@@ -458,11 +460,7 @@ Rectangle {
 
     function scrollToBottom() {
         if (listview.count == 0) return;
-        // if (chat_scrollbar.visualPosition > 0.85) {
-        listview.positionViewAtIndex(listview.count - 1, ListView.End);
         listview.positionViewAtEnd();
-        listview.contentY = listview.contentY + 50;
-        // }
     }
 
 
@@ -508,11 +506,11 @@ Rectangle {
     }
 
     function formatContent(mess) {
+        var arrow = /\</gi
+        mess = mess.replace(arrow, "&lt;");
+
         var link = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
         mess = mess.replace(link, (match) => {return "<a onclick='Window.openUrl("+match+")' href='" + match + "'>" + match + "</a> <a onclick='Window.openUrl("+match+")'>⮺</a>"});
-
-        var script_tag = /<script\b[^>]*>/gi;
-        mess = mess.replace(script_tag, "script");
 
         var newline = /\n/gi;
         mess = mess.replace(newline, "<br>");
