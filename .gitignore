@@ -1,1 +1,3 @@
 workspace.code-workspace
+package*.json
+/node_modules/
