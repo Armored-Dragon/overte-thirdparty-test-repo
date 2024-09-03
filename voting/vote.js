@@ -25,6 +25,7 @@
 	var tablet;
 	var appButton;
 	var active = false;
+	const url = Script.resolvePath("./vote.qml")
 
 	console.log("Ah");
 
@@ -45,21 +46,25 @@
 	// Overlay button toggle
 	appButton.clicked.connect(toolbarButtonClicked);
 	tablet.fromQml.connect(fromQML);
+	tablet.screenChanged.connect(onTabletScreenChanged);
 
 	function toolbarButtonClicked() {
-		if (active) {
-			tablet.gotoHomeScreen();
-			active = !active;
-			appButton.editProperties({
-				isActive: active,
-			});
-		} else {
-			tablet.loadQMLSource(Script.resolvePath("./vote.qml"));
-			active = !active;
-			appButton.editProperties({
-				isActive: active,
-			});
-		}
+		if (active) tablet.gotoHomeScreen();
+		else tablet.loadQMLSource(url);
+		
+		active = !active;
+		appButton.editProperties({
+			isActive: active,
+		});
+	}
+
+	function onTabletScreenChanged(type, new_url){
+		if (url == new_url) active = true;
+		else active = false;
+		
+		appButton.editProperties({
+			isActive: active,
+		});
 	}
 
 	// Functions
