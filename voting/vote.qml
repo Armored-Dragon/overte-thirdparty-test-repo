@@ -285,7 +285,7 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            poll_option_model_host.append({option: "Maybe"})
+                            poll_option_model_host.append({option: ""})
                         }
                     }
                 }
@@ -598,6 +598,11 @@ Rectangle {
                     color: "black"
                     font.pointSize: 14
                     Layout.fillWidth: true
+
+                    // Update the option property
+                    onTextChanged: {
+                        poll_option_model_host.setProperty(index, "option", text)
+                    }
                 }
 
                 Rectangle {
