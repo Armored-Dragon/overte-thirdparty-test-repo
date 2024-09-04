@@ -28,6 +28,7 @@
 	var poll = {id: '', title: '', description: '', host: '', question: '', options: []};
 	var receivedPolls = []; // List of poll ids received. 
 	const url = Script.resolvePath("./vote.qml");
+	const myUuid = generateUUID(MyAvatar.sessionUUID);
 	Messages.messageReceived.connect(receivedMessage);
 	Messages.subscribe('ga-polls');
 
@@ -79,6 +80,8 @@
 	}
 
 	// Functions
+
+	// Get a list of active polls
 	function getActivePolls() {
 		// Sends a message to all hosts to send a list of their polls
 		Messages.sendMessage('ga-polls', JSON.stringify({type: "populate"}));
@@ -91,8 +94,8 @@
 		if (poll.id != '') return;
 
 		// Set our active poll data
-		poll.id = Uuid.generate().toString();
-		poll.host = MyAvatar.sessionUUID;
+		poll.id = generateUUID();
+		poll.host = myUuid;
 		poll.title = pollInformation.title;
 		poll.description = pollInformation.description;
 		console.log(`Active poll set as:\nid:${poll.id}\ntitle:${poll.title}\ndescription:${poll.description}`);
@@ -101,8 +104,28 @@
 		Messages.sendMessage("ga-polls", JSON.stringify({type: "active_poll", poll: poll}));
 		console.log("Broadcasted poll to server");
 
+		// Subscribe to our own messages
+		Messages.subscribe(poll.id);
+
 		// Update the UI screen
 		_emitEvent({type: "create_poll"});
+	}
+
+	// Closes the poll and return to the main menu
+	function deletePoll(){
+		// Check to see if we are hosting the poll
+		if (poll.host != MyAvatar.sessionUUID) return;
+		
+		console.log("Closing active poll");
+
+		// Submit the termination message to all clients
+		Messages.sendMessage("ga-polls", JSON.stringify({type: "close_poll", poll: {id: poll.id}}));
+
+		// Clear our active poll data
+		poll = { host: '', title: '', description: '', id: '', question: '', options: []};
+
+		// Update the UI screen
+		_emitEvent({type: "close_poll"});
 	}
 
 	// Join an existing poll hosted by another user
@@ -118,15 +141,22 @@
 
 		// Send join notice to server. This will cause the host to (re)emit the current poll to the server 
 		Messages.sendMessage(pollToJoin.id, JSON.stringify({type: "join"}));
+
+		// Log the successful join
+		console.log(`Successfully joined ${poll.id}`);
 	}
 
 	// Leave a poll hosted by another user
 	function leavePoll() { 
+		let pollToLeave = poll.id;
+
 		// Unsubscribe from message mixer for poll information
 		Messages.unsubscribe(poll.id);
 
 		// Clear poll
 		poll = {id: '', host: ''}; 
+
+		console.log(`Successfully left ${pollToLeave}`);
 	}
 
 	// Cast a vote on a poll
@@ -138,8 +168,23 @@
 
 		// Send vote to server
 		Messages.sendMessage(poll.id, JSON.stringify({type: "vote", option: event.option}));
-	 }
+	}
 
+	// Emit the prompt question and options to the server
+	function emitPrompt(){
+		if (poll.host != myUuid) return; // We are not the host of this poll
+
+		console.log(`Emitting prompt`);
+		Messages.sendMessage(poll.id, JSON.stringify({type: "poll_prompt", prompt: {question: poll.question, options: poll.options}}));
+	}
+
+	// Create a UUID or turn an existing UUID into a string
+	function generateUUID(existingUuid){
+		if (!existingUuid) existingUuid = Uuid.generate(); // Generate standard UUID
+
+		existingUuid = Uuid.toString(existingUuid); // Scripts way to turn it into a string
+		return existingUuid.replace(/[{}]/g, ''); // Remove '{' and '}' from UUID string >:(
+	}
 
 	// Communication
 	function fromQML(event) {
@@ -151,10 +196,18 @@
 			createPoll(event.poll);
 			break;
 		case "join_poll":
-			joinPoll(event);
+			joinPoll(event.poll);
 			break;
 		case "cast_vote":
 			castVote(event);
+			break;
+		case "close_poll":
+			deletePoll();
+			break;
+		case "prompt":
+			poll.question = event.prompt.question;
+			poll.options = event.prompt.options;
+			emitPrompt();
 			break;
 		}
 	}
@@ -168,7 +221,7 @@
 	}
 
 	function receivedMessage(channel, message){
-		// console.log(`Received message from server:\n${JSON.stringify(message)}\n`);
+		console.log(`Received message on ${channel} from server:\n${JSON.stringify(message)}\n`);
 
 		message = JSON.parse(message);
 
@@ -187,13 +240,28 @@
 				// If we are not connected to a poll, list polls in the UI
 				if (poll.id == '') {
 					if (receivedPolls.indexOf(message.poll.id) == -1) {
-						console.log(JSON.stringify(message));
 						receivedPolls.push(message.poll.id);
 						_emitEvent({type: "new_poll", poll: message.poll});
 					}
 				}
 			}
+
+
+
 			break;
+		case poll.id:
+			// Received poll request
+			if (message.type == "join") {
+				emitPrompt();
+			}
+
+			// Received poll information
+			if (message.type == "poll_prompt") {
+				if (poll.host == myUuid) return; // We are the host of this poll
+				console.log(`Prompt:\n ${JSON.stringify(message.prompt)}`);
+				_emitEvent({type: "poll_prompt", prompt: message.prompt});
+			}
 		}
+
 	}
 })();

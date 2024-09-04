@@ -10,6 +10,8 @@ Rectangle {
     height: 700
     id: root
 
+    // property string current_page: "poll_host_view"
+
     property string current_page: "poll_list"
 
     // Poll List view
@@ -57,6 +59,7 @@ Rectangle {
                 property int delegateIndex: index
                 property string delegateTitle: model.title
                 property string delegateDescription: model.description
+                property string delegateId: String(model.id)
                 width: active_polls_list.width
 
                 sourceComponent: active_poll_template
@@ -65,15 +68,6 @@ Rectangle {
         
         ListModel {
             id: active_polls
-            ListElement {
-                title: "My Awesome poll!"
-                description: "Vote on super funny things!"
-            }
-
-            ListElement {
-                title: "74"
-                description: "Raptor moment"
-            }
         }
     }
 
@@ -196,6 +190,7 @@ Rectangle {
                 y: 20
             }
             TextEdit {
+                id: poll_to_respond_title
                 width: parent.width
                 text: "<Question>"
                 color: "white"
@@ -248,30 +243,83 @@ Rectangle {
 
         // Add Option Button
         Item {
-            Layout.fillWidth: true
+            width: parent.width
             height: 40
-            width: 40
 
-            Rectangle {
+            RowLayout {
                 anchors.centerIn: parent
-                width: 40
-                height: 40
-                color: "green"
 
-                Text {
-                    anchors.centerIn: parent
-                    text:"+"
-                    color: "white"
-                    font.pointSize:30
+                Rectangle {
+                    width: 150
+                    height: 40
+                    color: "#c0bfbc"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text:"Close poll"
+                        color: "black"
+                        font.pointSize:18
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            toScript({type: "close_poll"});
+                            current_page = "poll_list";
+                        }
+                    }
                 }
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        poll_option_model_host.append({option: "Maybe"})
+                Rectangle {
+                    width: 40
+                    height: 40
+                    color: "green"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text:"+"
+                        color: "white"
+                        font.pointSize:30
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            poll_option_model_host.append({option: "Maybe"})
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width: 150
+                    height: 40
+                    color: "#1c71d8"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text:"Submit poll"
+                        color: "white"
+                        font.pointSize:18
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            // Get a list of all options
+                            var options = []
+                            for (var i = 0; i < poll_option_model_host.count; i++) {
+                                var element = poll_option_model_host.get(i);
+                                console.log("added "+ element.option +" to array")
+                                options.push(element.option)
+                            }
+
+                            toScript({type: "prompt", prompt: {question: poll_to_respond_title.text, options: options}})
+                        }
                     }
                 }
             }
+
+
         }
     } 
 
@@ -302,6 +350,7 @@ Rectangle {
                 y: 20
             }
             Text {
+                id: prompt_question
                 width: parent.width
                 text: "XXXX as a board member"
                 color: "white"
@@ -365,6 +414,7 @@ Rectangle {
             property int index: delegateIndex
             property string title: delegateTitle
             property string description: delegateDescription
+            property string id: delegateId
 
             property bool selected: (active_polls_list.index_selected == index)
             height: selected ? 100 : 60 
@@ -394,7 +444,6 @@ Rectangle {
                         color: "white"
                         font.pointSize: 12
                         wrapMode: Text.NoWrap
-                        // elide: Text.ElideRight
                     }
                     Text {
                         width: parent.width
@@ -431,7 +480,7 @@ Rectangle {
                             anchors.fill: parent
 
                             onClicked: {
-                                // installNewApp(title, url, repo, description, icon);
+                                toScript({type: "join_poll", poll: {id: id}})
                             }
                         }
                     }
@@ -568,17 +617,33 @@ Rectangle {
         }
     }
 
-
-
     // Messages from script
     function fromScript(message) {
         switch (message.type){
+        // Switch view to the create poll view
         case "create_poll":
-            // Switch view to the create poll view
             break;
+
+        // Add poll info to the list of active polls
         case "new_poll":
-            // Add poll info to the list of active polls
-            active_polls.append({ title: message.poll.title, description: message.poll.description})
+            console.log("\n\nWe are doing the thing")
+            console.log(JSON.stringify(message.poll))
+            active_polls.append(message.poll)
+            break;
+        
+        // Populate the client view of the current question and options
+        case "poll_prompt":
+            current_page = "poll_client_view"
+            // Clear options
+            poll_option_model.clear()
+
+            // Set values
+            prompt_question.text = message.prompt.question
+            for (var option of message.prompt.options){
+                console.log("adding option "+ option);
+                poll_option_model.append({option: option}) 
+            }
+            // Set the options
             break;
         }
     }
