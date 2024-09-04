@@ -114,12 +114,12 @@
 	// Closes the poll and return to the main menu
 	function deletePoll(){
 		// Check to see if we are hosting the poll
-		if (poll.host != MyAvatar.sessionUUID) return;
+		if (poll.host != myUuid) return; // We are not the host of this poll
 		
 		console.log("Closing active poll");
 
 		// Submit the termination message to all clients
-		Messages.sendMessage("ga-polls", JSON.stringify({type: "close_poll", poll: {id: poll.id}}));
+		Messages.sendMessage(poll.id, JSON.stringify({type: "close_poll"}));
 
 		// Clear our active poll data
 		poll = { host: '', title: '', description: '', id: '', question: '', options: []};
@@ -130,6 +130,8 @@
 
 	// Join an existing poll hosted by another user
 	function joinPoll(pollToJoin){
+		// TODO: Check if poll even exists
+
 		// Leave poll if already connected to one
 		leavePoll(); 
 
@@ -252,6 +254,7 @@
 		case poll.id:
 			// Received poll request
 			if (message.type == "join") {
+				// FIXME: Does not work!
 				emitPrompt();
 			}
 
@@ -260,6 +263,12 @@
 				if (poll.host == myUuid) return; // We are the host of this poll
 				console.log(`Prompt:\n ${JSON.stringify(message.prompt)}`);
 				_emitEvent({type: "poll_prompt", prompt: message.prompt});
+			}
+
+			// Polls closed :)
+			if (message.type == "close_poll") { 
+				leavePoll();
+				_emitEvent({type: "close_poll"});
 			}
 		}
 

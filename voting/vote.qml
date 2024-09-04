@@ -389,17 +389,7 @@ Rectangle {
             
             ListModel {
                 id: poll_option_model
-                ListElement {
-                    option: "Yes"
-                }
 
-                ListElement {
-                    option: "No"
-                }
-
-                ListElement {
-                    option: "Abstain"
-                }
             }
         }
     }
@@ -650,6 +640,10 @@ Rectangle {
             }
             // Set the options
             break;
+        case "close_poll":
+            current_page = "poll_list"
+            // TODO: Clear poll list view
+            // TODO: Clear poll client view?
         }
     }
 
