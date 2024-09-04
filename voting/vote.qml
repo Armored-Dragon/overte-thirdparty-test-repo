@@ -162,6 +162,7 @@ Rectangle {
                     anchors.fill: parent
                     onClicked: {
                         toScript({type: "create_poll", poll: {title: poll_to_create_title.text, description: poll_to_create_description.text}});
+                        current_page = "poll_host_view";
                     }
                 }
             }
@@ -196,7 +197,7 @@ Rectangle {
             }
             TextEdit {
                 width: parent.width
-                text: "XXXX as a board member"
+                text: "<Question>"
                 color: "white"
                 font.pointSize: 20
                 wrapMode: Text.NoWrap
@@ -214,13 +215,14 @@ Rectangle {
 
             ListView {
                 property int index_selected: -1
-                width: parent.width
+                width: parent.width - 40
                 height: parent.height - 60
                 clip: true
                 interactive: true
                 spacing: 5
                 id: poll_options_host
                 model: poll_option_model_host
+                anchors.centerIn: parent
 
                 delegate: Loader {
                     property int delegateIndex: index
@@ -236,6 +238,38 @@ Rectangle {
 
                 ListElement {
                     option: "Yes"
+                }
+
+                ListElement {
+                    option: "No"
+                }
+            }
+        }
+
+        // Add Option Button
+        Item {
+            Layout.fillWidth: true
+            height: 40
+            width: 40
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 40
+                height: 40
+                color: "green"
+
+                Text {
+                    anchors.centerIn: parent
+                    text:"+"
+                    color: "white"
+                    font.pointSize:30
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        poll_option_model_host.append({option: "Maybe"})
+                    }
                 }
             }
         }
@@ -488,20 +522,16 @@ Rectangle {
         }
     }
 
-    // Poll option
+    // Poll option Host
     Component {
         id: poll_option_template_host
 
         Rectangle {
-            property int index: delegateIndex
             property string option: delegateOption
+            property int index: delegateIndex
 
-            property bool selected: (active_polls_list.index_selected == index)
-            property bool vote_cast: false 
-            property bool vote_confirmed: false 
-            height: vote_confirmed ? 100 : 60 
-
-            color: index % 2 === 0 ? "transparent" : Qt.rgba(0.15,0.15,0.15,1)
+            height: 60 
+            color: "transparent" 
 
             Behavior on height {
                 NumberAnimation {
@@ -509,16 +539,30 @@ Rectangle {
                 }
             }
 
-            Item {
-                width: parent.width - 10
+            RowLayout {
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 height: parent.height
 
-                TextEdit {
-                    text: "Option"
-                    anchors.centerIn: parent
-                    color: "white"
+                TextField {
+                    text: option
+                    color: "black"
                     font.pointSize: 14
+                    Layout.fillWidth: true
+                }
+
+                Rectangle {
+                    width: 100
+                    height: parent.height
+                    color: "yellow"
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            // Remove this element from the list
+                            poll_option_model_host.remove(index)
+                        }
+                    }
                 }
             }
         }
