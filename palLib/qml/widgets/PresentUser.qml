@@ -13,8 +13,11 @@ Item {
 	property string isContact: user.isContact;
 	property string isPresent: user.isPresent;
 
+	height: 100;
+	width: parent.width;
+
 	RowLayout {
-		height: 100;
+		height: parent.height;
 		width: parent.width;
 
 		// Icon
