@@ -8,10 +8,10 @@ Item {
 	property string username: user.username;
 	property string icon: user.icon || "../../img/default_profile_avatar.svg";
 	property string uuid: user.uuid;
-	property string isAdmin: user.isAdmin;
-	property string isFriend: user.isFriend;
-	property string isContact: user.isContact;
-	property string isPresent: user.isPresent;
+	property bool isAdmin: user.isAdmin;
+	property bool isFriend: user.isFriend;
+	property bool isContact: user.isContact;
+	property bool isPresent: user.isPresent;
 
 	height: 100;
 	width: parent.width;

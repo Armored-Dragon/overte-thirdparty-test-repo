@@ -1,6 +1,6 @@
 "use strict";
 // eslint-disable-next-line no-unused-vars
-/* global Tablet Script contactsLib  */
+/* global Tablet Script contactsLib palLib  */
 
 let tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 let active = false;
@@ -14,6 +14,7 @@ let appButton = tablet.addButton({
 
 // let contactsLib = Script.require("./libs/contacts.js");
 let palLib = Script.require("./libs/pal.js");
+// let helper = Script.require("./libs/helper.js");
 
 appButton.clicked.connect(toolbarButtonClicked);
 

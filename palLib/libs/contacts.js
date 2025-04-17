@@ -8,6 +8,10 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+// eslint-disable-next-line no-unused-vars
+/* global Tablet Script contactsLib palLib Account  */
+
 "use strict";
 
 let helper = Script.require("./helper.js");
@@ -49,7 +53,7 @@ let contactsLib = {
 					return resolve({ success: true, message: `Contact request for ${uuid} accepted.`, accepted: true });
 				}
 			}
-		})
+		});
 	},
 	removeContact: (username) => {
 		return new Promise((resolve, reject) => {
@@ -81,7 +85,7 @@ let contactsLib = {
 				const responseJSON = helper.makeJSON(response);
 				helper.logJSON(responseJSON);
 			}
-		})
+		});
 	},
 	removeFriend: (username) => {
 		return new Promise((resolve, reject) => {
@@ -92,7 +96,7 @@ let contactsLib = {
 				const responseJSON = helper.makeJSON(response);
 				helper.logJSON(responseJSON);
 			}
-		})
+		});
 	},
 	getContactList: () => {
 		return new Promise((resolve, reject) => {
@@ -131,6 +135,6 @@ let contactsLib = {
 			return resolve({ success: true, contact: contactSingle });
 		});
 	},
-}
+};
 
 module.exports = contactsLib;

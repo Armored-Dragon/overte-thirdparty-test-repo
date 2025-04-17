@@ -42,6 +42,7 @@ let pal = {
 					isFriend: false,
 					isContact: false,
 					isPresent: true,
+					isAdmin: false, // Assume users are not admin
 				});
 			});
 
