@@ -28,11 +28,11 @@ let helper = {
 					}
 				}
 			};
-	
+
 			req.open(method, url);
-			if (method == `POST`) req.setRequestHeader("Content-Type", "application/json");
+			if (method === `POST`) req.setRequestHeader("Content-Type", "application/json");
 			req.send(JSON.stringify(body));
-		})
+		});
 	},
 	makeJSON: (string) => {
 		if (typeof string === "object") return string;
@@ -47,6 +47,6 @@ let helper = {
 		print(JSON.stringify(obj, null, 4));
 
 	}
-}
+};
 
 module.exports = helper;

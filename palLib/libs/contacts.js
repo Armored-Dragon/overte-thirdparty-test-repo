@@ -10,7 +10,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 // eslint-disable-next-line no-unused-vars
-/* global Tablet Script contactsLib palLib Account  */
+/* global Tablet Script contactsLib palLib Account MyAvatar */
 
 "use strict";
 
@@ -38,7 +38,6 @@ let contactsLib = {
 					print(`Error sending contact request.`)
 					return reject({ success: false, message: "Unknown error", response: responseJSON });
 				}
-
 
 				// We sent a request, but the recipient does not have an outgoing request to us.
 				if (responseJSON.data.connection === "pending") {
@@ -71,7 +70,7 @@ let contactsLib = {
 					return reject({ success: false, message: "Unknown error", response: responseJSON });
 				}
 
-				resolve({ success: true, message: `Contact '${username}' was removed.` })
+				resolve({ success: true, message: `Contact '${username}' was removed.` });
 			}
 		});
 	},

@@ -12,7 +12,7 @@ let appButton = tablet.addButton({
 	isActive: active,
 });
 
-// let contactsLib = Script.require("./libs/contacts.js");
+let contactsLib = Script.require("./libs/contacts.js");
 let palLib = Script.require("./libs/pal.js");
 // let helper = Script.require("./libs/helper.js");
 
@@ -49,8 +49,31 @@ function onScreenChanged(type, url) {
 	}
 }
 
-function fromQML(event) {
+async function fromQML(event) {
+	if (!active) return; // Disregard.
+
 	console.log(`Got event from QML:\n ${JSON.stringify(event, null, 4)}`);
+
+	if (event.type === "addContact") {
+		await contactsLib.addContact(event.user.uuid);
+		palLib.getContactData();
+		return;
+	}
+	if (event.type === "removeContact") {
+		await contactsLib.removeContact(event.user.username);
+		palLib.getContactData();
+		return;
+	}
+	if (event.type === "addFriend") {
+		await contactsLib.addFriend(event.user.username);
+		palLib.getContactData();
+		return;
+	}
+	if (event.type === "removeFriend") {
+		await contactsLib.removeFriend(event.user.username);
+		palLib.getContactData();
+		return;
+	}
 }
 
 function toQML(packet = { type: "" }) {

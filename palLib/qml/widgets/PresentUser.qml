@@ -3,6 +3,9 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.3
 import QtGraphicalEffects 1.0
 
+import "."
+
+
 Item {
 	property string displayName: user.displayName;
 	property string username: user.username;
@@ -13,110 +16,139 @@ Item {
 	property bool isContact: user.isContact;
 	property bool isPresent: user.isPresent;
 
-	height: 100;
+	height: 200;
 	width: parent.width;
 
-	RowLayout {
+	ColumnLayout {
 		height: parent.height;
 		width: parent.width;
 
-		// Icon
-		Item {
-			height: 80;
-			width: 80;
+		RowLayout {
+			height: 100;
+			width: parent.width;
 
-			Rectangle {
-				color: "#333";
-				radius: 100;
+			// Icon
+			Item {
 				height: 80;
 				width: 80;
-				id: avatarImageBackground;
-				anchors.centerIn: parent;
+
+				Rectangle {
+					color: "#333";
+					radius: 100;
+					height: 80;
+					width: 80;
+					id: avatarImageBackground;
+					anchors.centerIn: parent;
+				}
+
+				Image {
+					id: avatarImageElement;
+					source: icon ;
+					sourceSize.width: 80;
+					sourceSize.height: 80;
+					z: 1;
+					anchors.centerIn: parent;
+					visible: false;
+				}
+
+				OpacityMask {
+					anchors.fill: avatarImageElement;
+					source: avatarImageElement;
+					maskSource: avatarImageBackground;
+				}
 			}
 
-			Image {
-				id: avatarImageElement;
-				source: icon ;
-				sourceSize.width: 80;
-				sourceSize.height: 80;
-				z: 1;
-				anchors.centerIn: parent;
-				visible: false;
+			// Name + Admin username
+			Item {
+				width: 200;
+				height: 80;
+
+				Column {
+					height: parent.height;
+					width: parent.width;
+					Text {
+						text: displayName;
+						color: "white";
+						width: parent.width;
+						height: 40;
+						font.pointSize: 16;
+					}
+					Text {
+						text: username;
+						color: "white";
+						width: parent.width;
+						height: 40;
+						font.pointSize: 12;
+					}
+				}
+
+
 			}
 
-			OpacityMask {
-				anchors.fill: avatarImageElement;
-				source: avatarImageElement;
-				maskSource: avatarImageBackground;
+			// Friend info
+			Item {
+				width: 200;
+				height: 80;
+
+				Column {
+					height: parent.height;
+					width: parent.width;
+
+					Text {
+						text: "Con? " + isContact;
+						color: isContact ?  "#3babe1" : "red";
+						width: parent.width;
+						height: 20;
+						font.pointSize: 12;
+					}
+					Text {
+						text: "Fren? " + isFriend;
+						color: isFriend ? "#3babe1" : "red";
+						width: parent.width;
+						height: 20;
+						font.pointSize: 12;
+					}
+					Text {
+						text: "Present? " + isPresent;
+						color: isPresent ? "#3babe1" : "red";
+						width: parent.width;
+						height: 20;
+						font.pointSize: 12;
+					}
+					Text {
+						text: "Admin? " + isAdmin;
+						color: isAdmin ? "#3babe1" : "red";
+						width: parent.width;
+						height: 20;
+						font.pointSize: 12;
+					}
+				}
+			}
+
+		}
+		Grid {
+			Layout.preferredWidth: parent.width
+			Layout.preferredHeight: 100
+			columns: 4
+			spacing: 10
+			width: parent.width
+
+			UserButton {
+				text: "Add Contact";
+				myAction: () => {toScript({type: "addContact", user: user})};
+			}
+			UserButton {
+				text: "Remove Contact";
+				myAction: () => {toScript({type: "removeContact", user: user})};
+			}
+			UserButton {
+				text: "Add Friend";
+				myAction: () => {toScript({type: "addFriend", user: user})};
+			}
+			UserButton {
+				text: "Remove Friend";
+				myAction: () => {toScript({type: "removeFriend", user: user})};
 			}
 		}
-
-		// Name + Admin username
-		Item {
-			width: 200;
-			height: 80;
-
-			Column {
-				height: parent.height;
-				width: parent.width;
-				Text {
-					text: displayName;
-					color: "white";
-					width: parent.width;
-					height: 40;
-					font.pointSize: 16;
-				}
-				Text {
-					text: username;
-					color: "white";
-					width: parent.width;
-					height: 40;
-					font.pointSize: 12;
-				}
-			}
-
-
-		}
-
-		// Friend info
-		Item {
-			width: 200;
-			height: 80;
-
-			Column {
-				height: parent.height;
-				width: parent.width;
-
-				Text {
-					text: "Con? " + isContact;
-					color: isContact ?  "#3babe1" : "red";
-					width: parent.width;
-					height: 20;
-					font.pointSize: 12;
-				}
-				Text {
-					text: "Fren? " + isFriend;
-					color: isFriend ? "#3babe1" : "red";
-					width: parent.width;
-					height: 20;
-					font.pointSize: 12;
-				}
-				Text {
-					text: "Present? " + isPresent;
-					color: isPresent ? "#3babe1" : "red";
-					width: parent.width;
-					height: 20;
-					font.pointSize: 12;
-				}
-				Text {
-					text: "Admin? " + isAdmin;
-					color: isAdmin ? "#3babe1" : "red";
-					width: parent.width;
-					height: 20;
-					font.pointSize: 12;
-				}
-			}
-		}
-
 	}
 }

@@ -61,10 +61,7 @@ let pal = {
 
 			// If we have contacts, and those contacts are in the domain with us, update them in our list
 			pal.activeUsers.forEach((user, index) => {
-				const isUserFriend = pal._contactUserData[user.uuid]?.isFriend || false;
-				const isUserContact = pal._contactUserData[user.uuid]?.isContact || false;
-
-				pal.activeUsers[index] = { ...pal.activeUsers[index], isFriend: isUserFriend, isContact: isUserContact };
+				pal.activeUsers[index] = { ...pal.activeUsers[index], ...pal._contactUserData[user.uuid] };
 			});
 
 			resolve(pal.activeUsers);
@@ -83,6 +80,7 @@ let pal = {
 			pal._contactUserData[contact.location.node_id] = {
 				isFriend: isUserFriend,
 				isContact: true,
+				username: contact.username
 			};
 		});
 	},
@@ -112,6 +110,7 @@ function requestAdminLevelInformationAboutUserReply(sessionUUID, userName, machi
 	sessionUUID = helper.removeCurlyBracesFromUuid(sessionUUID);
 
 	pal._adminUserData[sessionUUID] = {};
+
 
 	pal._adminUserData[sessionUUID] = {
 		username: userName,
